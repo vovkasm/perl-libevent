@@ -1,9 +1,16 @@
 #include <event2/event.h>
+#include <sys/time.h>
 #include "libevent.h"
 #include "xshelper.h"
 
 static void libevent_event_callback(evutil_socket_t s, short events, void* arg) {
-    croak("Yes!");
+    dSP;
+    
+    SV* cb_sv = (SV*)arg;
+
+    PUSHMARK(SP);
+
+    call_sv(cb_sv, G_DISCARD);
 }
 
 MODULE = LibEvent PACKAGE = LibEvent
@@ -53,15 +60,22 @@ loop(event_base_t* ev_base,... )
   OUTPUT:
     RETVAL
 
+int
+break(event_base_t* ev_base)
+  CODE:
+    RETVAL = event_base_loopbreak(ev_base);
+  OUTPUT:
+    RETVAL
+
 void 
 DESTROY(event_base_t* ev_base)
   PPCODE:
     event_base_free(ev_base);
 
 void
-event_new(event_base_t* ev_base, evutil_socket_t s, short events, CV* callback_cv)
+event_new(event_base_t* ev_base, evutil_socket_t s, short events, SV* cb_sv)
   PPCODE:
-    event_t* ev = event_new(ev_base, s, events, libevent_event_callback, callback_cv);
+    event_t* ev = event_new(ev_base, s, events, libevent_event_callback, newSVsv(cb_sv));
 
     SV* obj = sv_newmortal();
     sv_setref_pv( obj, "LibEvent::Event", ev );
@@ -71,9 +85,11 @@ MODULE = LibEvent PACKAGE = LibEvent::Event
 PROTOTYPES: DISABLED
 
 int
-add(event_t* ev, int timeout)
+add(event_t* ev, NV timeout)
   CODE:
-    const struct timeval tv = { timeout, 0 };
+    struct timeval tv;
+    tv.tv_sec = (time_t)timeout;
+    tv.tv_usec = (suseconds_t)((timeout - ((NV)tv.tv_sec)) * 1000000);
     RETVAL = event_add(ev, &tv);
   OUTPUT:
     RETVAL
@@ -81,5 +97,7 @@ add(event_t* ev, int timeout)
 void
 DESTROY(event_t* ev)
   PPCODE:
+    SV* cb_sv = (SV*)event_get_callback_arg(ev);
+    SvREFCNT_dec(cb_sv);
     event_free(ev);
 
