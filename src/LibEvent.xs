@@ -4,6 +4,7 @@
 #include "xshelper.h"
 
 static void libevent_event_callback(evutil_socket_t s, short events, void* arg) {
+    dTHX;
     dSP;
     
     SV* cb_sv = (SV*)arg;
