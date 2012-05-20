@@ -30,6 +30,7 @@ my $base = LibEvent::EventBase->new;
     my $ev;
     $ev = $base->event_new(-1, EV_TIMEOUT|EV_PERSIST, sub {
             $cnt--;
+            is $ev->events, EV_TIMEOUT|EV_PERSIST, "events mask is consistent";
             undef $ev if $cnt == 0;
         });
     $ev->add(0.1);

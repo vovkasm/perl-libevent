@@ -2,7 +2,7 @@ TYPEMAP
 
 evutil_socket_t T_IV
 event_base_t*   O_OBJECT
-event_t*        O_OBJECT
+pevent_t*       O_OBJECT
 
 # "perlobject.map"  Dean Roehrich, version 19960302
 #

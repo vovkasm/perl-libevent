@@ -1,17 +1,30 @@
 #include <event2/event.h>
+#include <event2/event_struct.h>
 #include <sys/time.h>
 #include "libevent.h"
 #include "xshelper.h"
 
+typedef struct pevent {
+    SV* callback;
+    struct event ev;
+} pevent_t;
+
 static void libevent_event_callback(evutil_socket_t s, short events, void* arg) {
     dTHX;
     dSP;
-    
-    SV* cb_sv = (SV*)arg;
+
+    pevent_t *pev = (pevent_t*)arg;
+
+    ENTER;
+    SAVETMPS;
 
     PUSHMARK(SP);
+    PUTBACK;
 
-    call_sv(cb_sv, G_DISCARD);
+    call_sv(pev->callback, G_VOID|G_DISCARD);
+
+    FREETMPS;
+    LEAVE;
 }
 
 MODULE = LibEvent PACKAGE = LibEvent
@@ -31,6 +44,17 @@ BOOT:
     newCONSTSUB(stash, "EV_PERSIST",    newSViv(EV_PERSIST));
     newCONSTSUB(stash, "EV_ET",         newSViv(EV_ET));
 }
+
+MODULE = LibEvent PACKAGE = LibEvent
+PROTOTYPES: DISABLED
+
+SV*
+get_version()
+  CODE:
+    const char *version = event_get_version();
+    RETVAL = newSVpv(version, 0);
+  OUTPUT:
+    RETVAL
 
 MODULE = LibEvent PACKAGE = LibEvent::EventBase
 PROTOTYPES: DISABLED
@@ -68,6 +92,13 @@ break(event_base_t* ev_base)
   OUTPUT:
     RETVAL
 
+SV*
+get_method(event_base_t* ev_base)
+  CODE:
+    RETVAL = newSVpv(event_base_get_method(ev_base), 0);
+  OUTPUT:
+    RETVAL
+
 void 
 DESTROY(event_base_t* ev_base)
   PPCODE:
@@ -76,29 +107,41 @@ DESTROY(event_base_t* ev_base)
 void
 event_new(event_base_t* ev_base, evutil_socket_t s, short events, SV* cb_sv)
   PPCODE:
-    event_t* ev = event_new(ev_base, s, events, libevent_event_callback, newSVsv(cb_sv));
+    pevent_t* pev = (pevent_t*)malloc(sizeof(pevent_t));
+    pev->callback = newSVsv(cb_sv);
+    if (event_assign(&pev->ev, ev_base, s, events, libevent_event_callback, pev) != 0) {
+        croak("Can't assign event part of pevent. event_assign failed.");
+    }
 
     SV* obj = sv_newmortal();
-    sv_setref_pv( obj, "LibEvent::Event", ev );
+    sv_setref_pv( obj, "LibEvent::Event", pev );
     PUSHs(obj);
 
 MODULE = LibEvent PACKAGE = LibEvent::Event
 PROTOTYPES: DISABLED
 
 int
-add(event_t* ev, NV timeout)
+add(pevent_t* pev, NV timeout)
   CODE:
     struct timeval tv;
     tv.tv_sec = (time_t)timeout;
     tv.tv_usec = (suseconds_t)((timeout - ((NV)tv.tv_sec)) * 1000000);
-    RETVAL = event_add(ev, &tv);
+    RETVAL = event_add(&pev->ev, &tv);
+  OUTPUT:
+    RETVAL
+
+short
+events(pevent_t* pev)
+  CODE:
+    RETVAL = event_get_events(&pev->ev);
   OUTPUT:
     RETVAL
 
 void
-DESTROY(event_t* ev)
+DESTROY(pevent_t* pev)
   PPCODE:
-    SV* cb_sv = (SV*)event_get_callback_arg(ev);
-    SvREFCNT_dec(cb_sv);
-    event_free(ev);
+    SvREFCNT_dec(pev->callback);
+    event_del(&pev->ev);
+    free(pev);
+
 
