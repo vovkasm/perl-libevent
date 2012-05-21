@@ -18,7 +18,13 @@ my $base = LibEvent::EventBase->new;
 
 {
     my $tm1;
-    my $ev1 = $base->event_new(-1, EV_TIMEOUT, sub { is(sprintf("%.2f",time - $tm1), "0.50", "timer after 0.5s"); });
+    my $ev1;
+    $ev1 = $base->event_new(-1, EV_TIMEOUT, sub {
+            my ($ev, $events) = @_;
+            ok($events && EV_TIMEOUT, "events mask with EV_TIMEOUT");
+            is("$ev","$ev1", "we got same event object as event_new");
+            is(sprintf("%.2f",time - $tm1), "0.50", "timer after 0.5s");
+        });
     $ev1->add(0.5); # 0.5 second 
 
     $tm1 = time;

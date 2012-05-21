@@ -13,12 +13,15 @@ static void libevent_event_callback(evutil_socket_t s, short events, void* arg) 
     dTHX;
     dSP;
 
-    pevent_t *pev = (pevent_t*)arg;
+    SV* sv_ev = (SV*)arg;
+    pevent_t *pev = (pevent_t*)SvIV(sv_ev);
 
     ENTER;
     SAVETMPS;
 
     PUSHMARK(SP);
+    mXPUSHs(newRV(sv_ev));
+    mXPUSHs(newSViv(events));
     PUTBACK;
 
     call_sv(pev->callback, G_VOID|G_DISCARD);
@@ -107,14 +110,16 @@ DESTROY(event_base_t* ev_base)
 void
 event_new(event_base_t* ev_base, evutil_socket_t s, short events, SV* cb_sv)
   PPCODE:
+    SV* obj = sv_newmortal();
     pevent_t* pev = (pevent_t*)malloc(sizeof(pevent_t));
+    sv_setref_pv( obj, "LibEvent::Event", pev );
+    SV* sv_ev = SvRV(obj);
+
     pev->callback = newSVsv(cb_sv);
-    if (event_assign(&pev->ev, ev_base, s, events, libevent_event_callback, pev) != 0) {
+    if (event_assign(&pev->ev, ev_base, s, events, libevent_event_callback, sv_ev) != 0) {
         croak("Can't assign event part of pevent. event_assign failed.");
     }
 
-    SV* obj = sv_newmortal();
-    sv_setref_pv( obj, "LibEvent::Event", pev );
     PUSHs(obj);
 
 MODULE = LibEvent PACKAGE = LibEvent::Event
