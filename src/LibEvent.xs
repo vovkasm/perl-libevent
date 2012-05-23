@@ -6,6 +6,7 @@
 
 typedef struct pevent {
     SV* callback;
+    SV* io;
     struct event ev;
 } pevent_t;
 
@@ -108,7 +109,7 @@ DESTROY(event_base_t* ev_base)
     event_base_free(ev_base);
 
 void
-event_new(event_base_t* ev_base, evutil_socket_t s, short events, SV* cb_sv)
+event_new(event_base_t* ev_base, SV* io_sv, short events, SV* cb_sv)
   PPCODE:
     SV* obj = sv_newmortal();
     pevent_t* pev = (pevent_t*)malloc(sizeof(pevent_t));
@@ -116,6 +117,18 @@ event_new(event_base_t* ev_base, evutil_socket_t s, short events, SV* cb_sv)
     SV* sv_ev = SvRV(obj);
 
     pev->callback = newSVsv(cb_sv);
+
+    evutil_socket_t s;
+    if ((SvIOK(io_sv) && SvIV(io_sv) < 0) || events & EV_SIGNAL) {
+        pev->io = NULL;
+        s = SvIV(io_sv);
+    }
+    else {
+        pev->io = newSVsv(io_sv);
+        sv_dump(io_sv);
+        s = PerlIO_fileno(sv_2io(pev->io));
+    }
+
     if (event_assign(&pev->ev, ev_base, s, events, libevent_event_callback, sv_ev) != 0) {
         croak("Can't assign event part of pevent. event_assign failed.");
     }
@@ -139,6 +152,13 @@ short
 events(pevent_t* pev)
   CODE:
     RETVAL = event_get_events(&pev->ev);
+  OUTPUT:
+    RETVAL
+
+SV*
+io(pevent_t* pev)
+  CODE:
+    RETVAL = pev->io;
   OUTPUT:
     RETVAL
 
