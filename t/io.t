@@ -23,16 +23,16 @@ my $base = LibEvent::EventBase->new;
 
     my $cnt = 1;
     my $ev = $base->event_new($in, EV_READ|EV_TIMEOUT, sub {
-            my ($ev, $events) = @_;
+            my ($ev0, $events) = @_;
             fail("Timeout detected!") if $events & EV_TIMEOUT;
             my $msg;
-            is $ev->io->sysread($msg, 1024), 5, 'Message length same as sended';
+            is $ev0->io->sysread($msg, 1024), 5, 'Message length same as sended';
             is $msg, "Hello", 'Message text is right';
             $cnt--;
         });
     $ev->add(2);
 
-    is $base->loop, 1;
+    is $base->loop, 1, "event loop done";
 
     is $cnt, 0, "read handler was called";
 }

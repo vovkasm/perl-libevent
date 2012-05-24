@@ -17,4 +17,6 @@ cc_include_paths qw(include);
 cc_src_paths qw(src);
 cc_libs @libs;
 
+#cc_append_to_ccflags qw(-g);
+
 WriteAll;

@@ -6,7 +6,7 @@
 
 typedef struct pevent {
     SV* callback;
-    SV* io;
+    SV* io_sv;
     struct event ev;
 } pevent_t;
 
@@ -120,13 +120,15 @@ event_new(event_base_t* ev_base, SV* io_sv, short events, SV* cb_sv)
 
     evutil_socket_t s;
     if ((SvIOK(io_sv) && SvIV(io_sv) < 0) || events & EV_SIGNAL) {
-        pev->io = NULL;
+        pev->io_sv = NULL;
         s = SvIV(io_sv);
     }
     else {
-        pev->io = newSVsv(io_sv);
-        sv_dump(io_sv);
-        s = PerlIO_fileno(sv_2io(pev->io));
+        pev->io_sv = newSVsv(io_sv);
+        PerlIO* io = IoIFP(sv_2io(pev->io_sv));
+        if (!io) croak("event_new: you should pass file descriptor");
+        s = PerlIO_fileno(io);
+        if (s < 0) croak("event_new: you should pass opened file descriptor");
     }
 
     if (event_assign(&pev->ev, ev_base, s, events, libevent_event_callback, sv_ev) != 0) {
@@ -158,15 +160,16 @@ events(pevent_t* pev)
 SV*
 io(pevent_t* pev)
   CODE:
-    RETVAL = pev->io;
+    RETVAL = newSVsv(pev->io_sv);
   OUTPUT:
     RETVAL
 
 void
 DESTROY(pevent_t* pev)
   PPCODE:
-    SvREFCNT_dec(pev->callback);
     event_del(&pev->ev);
+    if (pev->io_sv != NULL) SvREFCNT_dec(pev->io_sv);
+    SvREFCNT_dec(pev->callback);
     free(pev);
 
 

@@ -24,6 +24,7 @@ my $base = LibEvent::EventBase->new;
             ok($events && EV_TIMEOUT, "events mask with EV_TIMEOUT");
             is("$ev","$ev1", "we got same event object as event_new");
             is(sprintf("%.2f",time - $tm1), "0.50", "timer after 0.5s");
+            undef $ev1; # TODO: can we fix this? (it cycle $ev1 and they destroys after $base :-(
         });
     $ev1->add(0.5); # 0.5 second 
 
