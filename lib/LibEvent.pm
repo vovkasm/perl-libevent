@@ -20,4 +20,60 @@ XSLoader::load(__PACKAGE__, $VERSION);
 
 1;
 
+=pod
+
+=head1 NAME
+
+LibEvent - Perl bindings with libevent2
+
+=head1 SYNOPSIS
+
+    use LibEvent;
+
+    my $base = LibEvent::EventBase->new;
+
+    my $ev1 = $base->event_new(-1, EV_TIMEOUT, sub {
+            my ($ev, $events) = @_;
+            print "Timer1\n";
+            });
+
+    $ev1->add(1.5);
+
+    $base->loop;
+
+=head1 DESCRIPTION
+
+LibEvent is a thin wrapper around libevent2 functionality.
+
+=head1 CAVEATS
+
+Any from libevent2 + our own ;-)
+
+=head1 ALTERNATIVES
+
+=over 4
+
+=item L<EV>
+
+=item L<Event::Lib>
+
+=back
+
+=head1 SEE ALSO
+
+=over 4
+
+=item L<http://www.wangafu.net/~nickm/libevent-book>
+
+Fast portable non-blocking network programming with Libevent
+
+=back
+
+=head1 LICENSE
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut
+
 __END__
