@@ -45,6 +45,30 @@ LibEvent - Perl bindings with libevent2
 
 LibEvent is a thin wrapper around libevent2 functionality.
 
+=head1 CONSTANTS
+        
+=head2 EVLOOP_ONCE
+
+=head2 EVLOOP_NONBLOCK
+
+=head2 EV_TIMEOUT
+
+=head2 EV_READ
+
+=head2 EV_WRITE
+
+=head2 EV_SIGNAL
+
+=head2 EV_PERSIST
+
+=head2 EV_ET
+
+=head1 FUNCTIONS
+
+=head2 LibEvent::get_version
+
+Return libevent's version string.
+
 =head1 CAVEATS
 
 Any from libevent2 + our own ;-)

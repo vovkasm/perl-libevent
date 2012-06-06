@@ -1,0 +1,22 @@
+=head1 NAME
+
+LibEvent::EventBase - Representation of event base from libevent2
+
+=head1 CONSTRUCTOR
+
+=head2 LibEvent::EventBase->new
+
+Create new EventBase object.
+
+=head1 METHODS
+
+=head2 $base->event_new
+
+=head2 $base->loop
+
+=head2 $base->break
+
+=head2 $base->reinit
+
+=head2 $base->get_method
+
