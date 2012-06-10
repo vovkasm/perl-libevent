@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use Test::More;
 
-use_ok('LibEvent');
+use_ok('LibEvent',':all');
 
 is EVLOOP_ONCE(), 0x1;
 is EVLOOP_NONBLOCK(), 0x2;

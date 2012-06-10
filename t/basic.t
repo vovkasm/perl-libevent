@@ -4,7 +4,7 @@ use Test::More;
 use Carp 'confess';
 use Time::HiRes 'time';
 
-use LibEvent;
+use LibEvent ':all';
 
 my $base = LibEvent::EventBase->new;
 

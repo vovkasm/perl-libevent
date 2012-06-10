@@ -9,7 +9,7 @@ unless (eval "require Test::LeakTrace; 1") {
 }
 Test::LeakTrace->import();
 
-use LibEvent;
+use LibEvent ':all';
 
 no_leaks_ok(sub {
     my $base = LibEvent::EventBase->new;

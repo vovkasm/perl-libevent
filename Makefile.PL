@@ -6,6 +6,7 @@ author   'Vladimir Timofeev <vovkasm@gmail.com>';
 license  'perl';
 all_from 'lib/LibEvent.pm';
 
+requires 'Sub::Exporter';
 test_requires 'Test::More' => 0.88;
 
 my @libs = split(' ',`pkg-config --libs libevent` || 'event');

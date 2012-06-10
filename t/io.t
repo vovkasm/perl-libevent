@@ -16,15 +16,15 @@ my $base = LibEvent::EventBase->new;
     $in->blocking(0);
     $out->blocking(0);
 
-    my $tm = $base->event_new(-1, EV_TIMEOUT, sub {
+    my $tm = $base->event_new(-1, LibEvent::EV_TIMEOUT, sub {
             print $out "Hello";
         });
     $tm->add(0.2);
 
     my $cnt = 1;
-    my $ev = $base->event_new($in, EV_READ|EV_TIMEOUT, sub {
+    my $ev = $base->event_new($in, LibEvent::EV_READ|LibEvent::EV_TIMEOUT, sub {
             my ($ev0, $events) = @_;
-            fail("Timeout detected!") if $events & EV_TIMEOUT;
+            fail("Timeout detected!") if $events & LibEvent::EV_TIMEOUT;
             my $msg;
             is $ev0->io->sysread($msg, 1024), 5, 'Message length same as sended';
             is $msg, "Hello", 'Message text is right';
