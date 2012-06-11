@@ -1,7 +1,5 @@
 * Documentation!
-* Helper methods for timers and signals
 * Correctly check arguments
-* Split pevent_t to pevent_io_t and pevent_t (reduce memory usage for timers and signals)
 * Optimizations... testing...
 * Release to CPAN
 * ? Threads...

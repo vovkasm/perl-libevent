@@ -10,7 +10,20 @@ Create new EventBase object.
 
 =head1 METHODS
 
-=head2 $base->event_new
+=head2 $base->event_new($fh, $events, $cb)
+
+Create new IO event.
+Returns L<LibEvent::EvIO> object
+
+=head2 $base->signal_new($signum, $events, $cb)
+
+Create new signal event.
+Returns L<LibEvent::EvSignal> object
+
+=head2 $base->timer_new($events, $cb)
+
+Create new timer event.
+Returns L<LibEvent::EvTimer> object
 
 =head2 $base->loop
 

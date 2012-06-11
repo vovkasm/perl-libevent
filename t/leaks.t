@@ -14,11 +14,11 @@ use LibEvent ':all';
 no_leaks_ok(sub {
     my $base = LibEvent::EventBase->new;
 
-    my $ev1 = $base->event_new(-1, 0, sub { 'noop' });
+    my $ev1 = $base->timer_new(0, sub { 'noop' });
     $ev1->add(0.1); # one second 
 
     {
-        my $ev2 = $base->event_new(-1, 0, sub { 'noop' });
+        my $ev2 = $base->timer_new(0, sub { 'noop' });
         $ev2->add(2);
     }
 
@@ -33,7 +33,7 @@ no_leaks_ok(sub {
     $in->blocking(0);
     $out->blocking(0);
 
-    my $tm = $base->event_new(-1, EV_TIMEOUT, sub {
+    my $tm = $base->timer_new(EV_TIMEOUT, sub {
             print $out "Hello";
         });
     $tm->add(0.2);

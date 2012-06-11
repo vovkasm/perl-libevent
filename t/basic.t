@@ -10,7 +10,7 @@ my $base = LibEvent::EventBase->new;
 
 {
     {
-        my $ev = $base->event_new(-1, 0, sub { fail("Should not be called") });
+        my $ev = $base->timer_new(0, sub { fail("Should not be called") });
         $ev->add(2);
     }
     is $base->loop, 1;
@@ -19,7 +19,7 @@ my $base = LibEvent::EventBase->new;
 {
     my $tm1;
     my $ev1;
-    $ev1 = $base->event_new(-1, EV_TIMEOUT, sub {
+    $ev1 = $base->timer_new(0, sub {
             my ($ev, $events) = @_;
             ok($events && EV_TIMEOUT, "events mask with EV_TIMEOUT");
             is("$ev","$ev1", "we got same event object as event_new");
@@ -35,7 +35,7 @@ my $base = LibEvent::EventBase->new;
 { # persistent
     my $cnt = 2;
     my $ev;
-    $ev = $base->event_new(-1, EV_TIMEOUT|EV_PERSIST, sub {
+    $ev = $base->timer_new(EV_PERSIST, sub {
             $cnt--;
             is $ev->events, EV_TIMEOUT|EV_PERSIST, "events mask is consistent";
             undef $ev if $cnt == 0;
@@ -49,7 +49,7 @@ my $base = LibEvent::EventBase->new;
 {
     my $cnt = 2;
     my $ev;
-    $ev = $base->event_new(-1, EV_TIMEOUT|EV_PERSIST, sub {
+    $ev = $base->timer_new(EV_PERSIST, sub {
             $cnt--;
             is $base->break, 0, "break return success status";
         });

@@ -1,6 +1,6 @@
 =head1 NAME
 
-LibEvent::Event - Representation of event from libevent2
+LibEvent::EvIO - IO event
 
 =head1 METHODS
 
@@ -14,4 +14,4 @@ Returns events that this watcher listen
 
 =head2 $ev->io
 
-Returns io object for this watcher
+Returns filehandle for this watcher

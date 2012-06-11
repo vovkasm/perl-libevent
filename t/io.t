@@ -16,7 +16,7 @@ my $base = LibEvent::EventBase->new;
     $in->blocking(0);
     $out->blocking(0);
 
-    my $tm = $base->event_new(-1, LibEvent::EV_TIMEOUT, sub {
+    my $tm = $base->timer_new(LibEvent::EV_TIMEOUT, sub {
             print $out "Hello";
         });
     $tm->add(0.2);

@@ -26,7 +26,7 @@ LibEvent - Perl bindings with libevent2
 
     my $base = LibEvent::EventBase->new;
 
-    my $ev1 = $base->event_new(-1, EV_TIMEOUT, sub {
+    my $ev1 = $base->timer_new(LibEvent::EV_TIMEOUT, sub {
             my ($ev, $events) = @_;
             print "Timer1\n";
             });
