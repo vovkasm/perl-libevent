@@ -1,5 +1,6 @@
 * Documentation!
 * Correctly check arguments
+* Remove pointer to perl-level event_base from event structs (use global hash-table instead?)
 * Optimizations... testing...
 * Release to CPAN
 * ? Threads...
