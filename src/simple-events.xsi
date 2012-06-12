@@ -1,0 +1,117 @@
+MODULE = LibEvent PACKAGE = LibEvent::EvTimer
+PROTOTYPES: DISABLED
+
+int
+add(pevent_timer_t* pev, SV* timeout)
+  CODE:
+    if (SvOK(timeout)) {
+        NV tm = (NV)SvNV(timeout);
+        struct timeval tv;
+        tv.tv_sec = (time_t)tm;
+        tv.tv_usec = (suseconds_t)((tm - ((NV)tv.tv_sec)) * 1000000);
+        RETVAL = event_add(&pev->ev, &tv);
+    }
+    else {
+        croak("EvTimer: timeout should not be undef (we can't wait forever'");
+    }
+  OUTPUT:
+    RETVAL
+
+short
+events(pevent_timer_t* pev)
+  CODE:
+    RETVAL = event_get_events(&pev->ev);
+  OUTPUT:
+    RETVAL
+
+void
+DESTROY(pevent_timer_t* pev)
+  PPCODE:
+    event_del(&pev->ev);
+    SvREFCNT_dec(pev->callback);
+    SvREFCNT_dec(pev->pbase);
+    free(pev);
+
+MODULE = LibEvent PACKAGE = LibEvent::EvIO
+PROTOTYPES: DISABLED
+
+int
+add(pevent_io_t* pev, SV* timeout)
+  CODE:
+    if (SvOK(timeout)) {
+        NV tm = (NV)SvNV(timeout);
+        struct timeval tv;
+        tv.tv_sec = (time_t)tm;
+        tv.tv_usec = (suseconds_t)((tm - ((NV)tv.tv_sec)) * 1000000);
+        RETVAL = event_add(&pev->ev, &tv);
+    }
+    else {
+        RETVAL = event_add(&pev->ev, NULL);
+    }
+  OUTPUT:
+    RETVAL
+
+short
+events(pevent_io_t* pev)
+  CODE:
+    RETVAL = event_get_events(&pev->ev);
+  OUTPUT:
+    RETVAL
+
+SV*
+io(pevent_io_t* pev)
+  CODE:
+    RETVAL = newSVsv(pev->io_sv);
+  OUTPUT:
+    RETVAL
+
+void
+DESTROY(pevent_io_t* pev)
+  PPCODE:
+    event_del(&pev->ev);
+    if (pev->io_sv != NULL) SvREFCNT_dec(pev->io_sv);
+    SvREFCNT_dec(pev->callback);
+    SvREFCNT_dec(pev->pbase);
+    free(pev);
+
+MODULE = LibEvent PACKAGE = LibEvent::EvSignal
+PROTOTYPES: DISABLED
+
+int
+add(pevent_sig_t* pev, SV* timeout)
+  CODE:
+    if (SvOK(timeout)) {
+        NV tm = (NV)SvNV(timeout);
+        struct timeval tv;
+        tv.tv_sec = (time_t)tm;
+        tv.tv_usec = (suseconds_t)((tm - ((NV)tv.tv_sec)) * 1000000);
+        RETVAL = event_add(&pev->ev, &tv);
+    }
+    else {
+        RETVAL = event_add(&pev->ev, NULL);
+    }
+  OUTPUT:
+    RETVAL
+
+
+short
+events(pevent_sig_t* pev)
+  CODE:
+    RETVAL = event_get_events(&pev->ev);
+  OUTPUT:
+    RETVAL
+
+int
+signum(pevent_sig_t* pev)
+  CODE:
+    RETVAL = pev->signum;
+  OUTPUT:
+    RETVAL
+
+void
+DESTROY(pevent_sig_t* pev)
+  PPCODE:
+    event_del(&pev->ev);
+    SvREFCNT_dec(pev->callback);
+    SvREFCNT_dec(pev->pbase);
+    free(pev);
