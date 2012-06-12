@@ -6,7 +6,11 @@ use warnings;
 our $VERSION = '0.01';
 
 use Sub::Exporter -setup => {
-    exports => [qw(EVLOOP_ONCE EVLOOP_NONBLOCK EV_TIMEOUT EV_READ EV_WRITE EV_SIGNAL EV_PERSIST EV_ET)],
+    exports => [qw(
+        EVLOOP_ONCE EVLOOP_NONBLOCK
+        EV_TIMEOUT EV_READ EV_WRITE EV_SIGNAL EV_PERSIST EV_ET
+        libevent_get_version
+        )],
 };
 
 require XSLoader;
@@ -60,6 +64,10 @@ LibEvent is a thin wrapper around libevent2 functionality.
 =head1 FUNCTIONS
 
 =head2 LibEvent::get_version
+
+    my $ver = LibEvent::get_version();
+    my $ver = LibEvent->get_version;
+    my $ver = libevent_get_version();
 
 Return libevent's version string.
 

@@ -12,6 +12,11 @@ Test::LeakTrace->import();
 use LibEvent ':all';
 
 no_leaks_ok(sub {
+        my $ver = libevent_get_version();
+        $ver = LibEvent->get_version();
+    });
+
+no_leaks_ok(sub {
     my $base = LibEvent::EventBase->new;
 
     my $ev1 = $base->timer_new(0, sub { 'noop' });

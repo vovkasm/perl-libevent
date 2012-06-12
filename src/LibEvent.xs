@@ -111,13 +111,14 @@ BOOT:
 MODULE = LibEvent PACKAGE = LibEvent
 PROTOTYPES: DISABLED
 
-SV*
-get_version()
-  CODE:
+void
+get_version(...)
+  ALIAS:
+    libevent_get_version = 1
+  PPCODE:
+    PERL_UNUSED_VAR(ix);
     const char *version = event_get_version();
-    RETVAL = newSVpv(version, 0);
-  OUTPUT:
-    RETVAL
+    mXPUSHs( newSVpv(version, 0) );
 
 INCLUDE: base.xsi
 INCLUDE: simple-events.xsi
