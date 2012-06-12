@@ -5,23 +5,27 @@
 #include "xshelper.h"
 
 typedef struct pevent_timer {
+    SV* pbase;
     SV* callback;
     struct event ev;
 } pevent_timer_t;
 
 typedef struct pevent_io {
+    SV* pbase;
     SV* callback;
     SV* io_sv;
     struct event ev;
 } pevent_io_t;
 
 typedef struct pevent_sig {
+    SV* pbase;
     SV* callback;
     int signum;
     struct event ev;
 } pevent_sig_t;
 
 static void libevent_timer_callback(evutil_socket_t s, short events, void* arg) {
+    PERL_UNUSED_ARG(s);
     dTHX;
     dSP;
 
@@ -43,6 +47,7 @@ static void libevent_timer_callback(evutil_socket_t s, short events, void* arg) 
 }
 
 static void libevent_io_callback(evutil_socket_t s, short events, void* arg) {
+    PERL_UNUSED_ARG(s);
     dTHX;
     dSP;
 
@@ -64,6 +69,7 @@ static void libevent_io_callback(evutil_socket_t s, short events, void* arg) {
 }
 
 static void libevent_sig_callback(evutil_socket_t s, short events, void* arg) {
+    PERL_UNUSED_ARG(s);
     dTHX;
     dSP;
 
@@ -124,6 +130,7 @@ new(SV* klass,... )
     
     SV* obj = sv_newmortal();
     sv_setref_pv( obj, classname, ev_base );
+
     PUSHs(obj);
 
 int
@@ -162,8 +169,16 @@ DESTROY(event_base_t* ev_base)
     event_base_free(ev_base);
 
 void
-event_new(event_base_t* ev_base, SV* io_sv, short events, SV* cb_sv)
+event_new(SV* ev_base_sv, SV* io_sv, short events, SV* cb_sv)
   PPCODE:
+    event_base_t* ev_base;
+    if( sv_isobject(ev_base_sv) && (SvTYPE(SvRV(ev_base_sv)) == SVt_PVMG) )
+        ev_base = (event_base_t *)SvIV((SV*)SvRV(ev_base_sv));
+    else{
+        warn( "LibEvent::EventBase::event_new() -- ev_base is not a blessed SV reference" );
+        XSRETURN_UNDEF;
+    }
+
     if ((events & (EV_READ|EV_WRITE)) == 0) {
         croak("event_new: io events should containts EV_READ or EV_WRITE flags");
     }
@@ -173,7 +188,8 @@ event_new(event_base_t* ev_base, SV* io_sv, short events, SV* cb_sv)
     pevent_io_t* pev = (pevent_io_t*)malloc(sizeof(pevent_io_t));
     sv_setref_pv( obj, "LibEvent::EvIO", pev );
     SV* sv_ev = SvRV(obj);
-    
+
+    pev->pbase = SvRV(ev_base_sv);
     pev->callback = newSVsv(cb_sv);
 
     evutil_socket_t s;
@@ -194,11 +210,21 @@ event_new(event_base_t* ev_base, SV* io_sv, short events, SV* cb_sv)
         croak("Can't assign event part of pevent. event_assign failed.");
     }
 
+    SvREFCNT_inc_simple_void_NN(pev->pbase);
+
     PUSHs(obj);
 
 void
-timer_new(event_base_t* ev_base, short events, SV* cb_sv)
+timer_new(SV* ev_base_sv, short events, SV* cb_sv)
   PPCODE:
+    event_base_t* ev_base;
+    if( sv_isobject(ev_base_sv) && (SvTYPE(SvRV(ev_base_sv)) == SVt_PVMG) )
+        ev_base = (event_base_t *)SvIV((SV*)SvRV(ev_base_sv));
+    else{
+        warn( "LibEvent::EventBase::event_new() -- ev_base is not a blessed SV reference" );
+        XSRETURN_UNDEF;
+    }
+
     events &= ~(EV_SIGNAL|EV_READ|EV_WRITE);
     events |= EV_TIMEOUT;
 
@@ -207,17 +233,28 @@ timer_new(event_base_t* ev_base, short events, SV* cb_sv)
     sv_setref_pv( obj, "LibEvent::EvTimer", pev );
     SV* sv_ev = SvRV(obj);
 
+    pev->pbase = SvRV(ev_base_sv);
     pev->callback = newSVsv(cb_sv);
 
     if (event_assign(&pev->ev, ev_base, -1, events, libevent_timer_callback, sv_ev) != 0) {
         croak("Can't assign event part of pevent. event_assign failed.");
     }
 
+    SvREFCNT_inc_simple_void_NN(pev->pbase);
+
     PUSHs(obj);
 
 void
-signal_new(event_base_t* ev_base, int signum, short events, SV* cb_sv)
+signal_new(SV* ev_base_sv, int signum, short events, SV* cb_sv)
   PPCODE:
+    event_base_t* ev_base;
+    if( sv_isobject(ev_base_sv) && (SvTYPE(SvRV(ev_base_sv)) == SVt_PVMG) )
+        ev_base = (event_base_t *)SvIV((SV*)SvRV(ev_base_sv));
+    else{
+        warn( "LibEvent::EventBase::event_new() -- ev_base is not a blessed SV reference" );
+        XSRETURN_UNDEF;
+    }
+
     events &= ~(EV_TIMEOUT|EV_READ|EV_WRITE);
     events |= EV_SIGNAL;
 
@@ -226,6 +263,7 @@ signal_new(event_base_t* ev_base, int signum, short events, SV* cb_sv)
     sv_setref_pv( obj, "LibEvent::EvSignal", pev );
     SV* sv_ev = SvRV(obj);
 
+    pev->pbase = SvRV(ev_base_sv);
     pev->callback = newSVsv(cb_sv);
     pev->signum = signum;
 
@@ -233,18 +271,26 @@ signal_new(event_base_t* ev_base, int signum, short events, SV* cb_sv)
         croak("Can't assign event part of pevent. event_assign failed.");
     }
 
+    SvREFCNT_inc_simple_void_NN(pev->pbase);
+
     PUSHs(obj);
 
 MODULE = LibEvent PACKAGE = LibEvent::EvTimer
 PROTOTYPES: DISABLED
 
 int
-add(pevent_timer_t* pev, NV timeout)
+add(pevent_timer_t* pev, SV* timeout)
   CODE:
-    struct timeval tv;
-    tv.tv_sec = (time_t)timeout;
-    tv.tv_usec = (suseconds_t)((timeout - ((NV)tv.tv_sec)) * 1000000);
-    RETVAL = event_add(&pev->ev, &tv);
+    if (SvOK(timeout)) {
+        NV tm = (NV)SvNV(timeout);
+        struct timeval tv;
+        tv.tv_sec = (time_t)tm;
+        tv.tv_usec = (suseconds_t)((tm - ((NV)tv.tv_sec)) * 1000000);
+        RETVAL = event_add(&pev->ev, &tv);
+    }
+    else {
+        croak("EvTimer: timeout should not be undef (we can't wait forever'");
+    }
   OUTPUT:
     RETVAL
 
@@ -260,18 +306,25 @@ DESTROY(pevent_timer_t* pev)
   PPCODE:
     event_del(&pev->ev);
     SvREFCNT_dec(pev->callback);
+    SvREFCNT_dec(pev->pbase);
     free(pev);
 
 MODULE = LibEvent PACKAGE = LibEvent::EvIO
 PROTOTYPES: DISABLED
 
 int
-add(pevent_io_t* pev, NV timeout)
+add(pevent_io_t* pev, SV* timeout)
   CODE:
-    struct timeval tv;
-    tv.tv_sec = (time_t)timeout;
-    tv.tv_usec = (suseconds_t)((timeout - ((NV)tv.tv_sec)) * 1000000);
-    RETVAL = event_add(&pev->ev, &tv);
+    if (SvOK(timeout)) {
+        NV tm = (NV)SvNV(timeout);
+        struct timeval tv;
+        tv.tv_sec = (time_t)tm;
+        tv.tv_usec = (suseconds_t)((tm - ((NV)tv.tv_sec)) * 1000000);
+        RETVAL = event_add(&pev->ev, &tv);
+    }
+    else {
+        RETVAL = event_add(&pev->ev, NULL);
+    }
   OUTPUT:
     RETVAL
 
@@ -295,20 +348,28 @@ DESTROY(pevent_io_t* pev)
     event_del(&pev->ev);
     if (pev->io_sv != NULL) SvREFCNT_dec(pev->io_sv);
     SvREFCNT_dec(pev->callback);
+    SvREFCNT_dec(pev->pbase);
     free(pev);
 
 MODULE = LibEvent PACKAGE = LibEvent::EvSignal
 PROTOTYPES: DISABLED
 
 int
-add(pevent_sig_t* pev, NV timeout)
+add(pevent_sig_t* pev, SV* timeout)
   CODE:
-    struct timeval tv;
-    tv.tv_sec = (time_t)timeout;
-    tv.tv_usec = (suseconds_t)((timeout - ((NV)tv.tv_sec)) * 1000000);
-    RETVAL = event_add(&pev->ev, &tv);
+    if (SvOK(timeout)) {
+        NV tm = (NV)SvNV(timeout);
+        struct timeval tv;
+        tv.tv_sec = (time_t)tm;
+        tv.tv_usec = (suseconds_t)((tm - ((NV)tv.tv_sec)) * 1000000);
+        RETVAL = event_add(&pev->ev, &tv);
+    }
+    else {
+        RETVAL = event_add(&pev->ev, NULL);
+    }
   OUTPUT:
     RETVAL
+
 
 short
 events(pevent_sig_t* pev)
@@ -325,10 +386,11 @@ signum(pevent_sig_t* pev)
     RETVAL
 
 void
-DESTROY(pevent_timer_t* pev)
+DESTROY(pevent_sig_t* pev)
   PPCODE:
     event_del(&pev->ev);
     SvREFCNT_dec(pev->callback);
+    SvREFCNT_dec(pev->pbase);
     free(pev);
 
 
