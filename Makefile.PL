@@ -1,18 +1,18 @@
-use strict;
-use warnings;
-use inc::Module::Install;
+use ExtUtils::MakeMaker;
 
-author   'Vladimir Timofeev <vovkasm@gmail.com>';
-license  'perl';
-all_from 'lib/LibEvent.pm';
+my $libevent_libs = `pkg-config --libs libevent`;
+my @libs = ($libevent_libs, '-levent');
 
-requires 'Sub::Exporter';
-test_requires 'Test::More' => 0.88;
-
-my @libs = split(' ',`pkg-config --libs libevent` || 'event');
-
-cc_warnings;
-
-cc_libs @libs;
-
-WriteAll;
+WriteMakefile(
+    NAME => 'LibEvent',
+    VERSION_FROM => 'lib/LibEvent.pm',
+    AUTHOR => 'Vladimir Timofeev <vovkasm@gmail.com>',
+    LICENSE => 'perl',
+    BUILD_REQUIRES => {
+        'Test::More' => 0.88,
+    },
+    PREREQ_PM => {
+        'Sub::Exporter' => 0,
+    },
+    LIBS => [@libs],
+);
