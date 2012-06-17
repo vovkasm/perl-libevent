@@ -1,8 +1,10 @@
 #include <event2/event.h>
 #include <event2/event_struct.h>
 #include <sys/time.h>
-#include "libevent.h"
 #include "xshelper.h"
+
+typedef struct event_base event_base_t;
+typedef struct event event_t;
 
 typedef struct pevent_timer {
     SV* pbase;
