@@ -13,7 +13,6 @@ my @libs = split(' ',`pkg-config --libs libevent` || 'event');
 
 cc_warnings;
 
-cc_src_paths qw(src);
 cc_libs @libs;
 
 WriteAll;
