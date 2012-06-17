@@ -1,7 +1,22 @@
 #include <event2/event.h>
 #include <event2/event_struct.h>
 #include <sys/time.h>
-#include "xshelper.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#define PERL_NO_GET_CONTEXT
+#include <EXTERN.h>
+#include <perl.h>
+#define NO_XSLOCKS
+#include <XSUB.h>
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
+
+#include "ppport.h"
 
 typedef struct event_base event_base_t;
 typedef struct event event_t;

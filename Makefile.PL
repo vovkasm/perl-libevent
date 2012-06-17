@@ -11,7 +11,6 @@ test_requires 'Test::More' => 0.88;
 
 my @libs = split(' ',`pkg-config --libs libevent` || 'event');
 
-use_xshelper;
 cc_warnings;
 
 cc_src_paths qw(src);
