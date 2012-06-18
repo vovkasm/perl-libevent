@@ -57,4 +57,9 @@ no_leaks_ok(sub {
     $base->loop;
 });
 
+no_leaks_ok(sub {
+    my $base = LibEvent::EventBase->new;
+    my $time = $base->now;
+});
+
 done_testing;

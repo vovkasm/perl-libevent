@@ -42,6 +42,20 @@ get_method(event_base_t* ev_base)
   OUTPUT:
     RETVAL
 
+double
+now(event_base_t* ev_base)
+  CODE:
+    struct timeval tv;
+    if (event_base_gettimeofday_cached(ev_base, &tv) == 0) {
+        RETVAL = tv.tv_sec + (tv.tv_usec/1000000.0);
+    }
+    else {
+        croak("LibEvent::EventBase->now failed");
+        RETVAL = 0;
+    }
+  OUTPUT:
+    RETVAL
+
 void 
 DESTROY(event_base_t* ev_base)
   PPCODE:
