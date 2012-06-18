@@ -25,7 +25,20 @@ Returns L<LibEvent::EvSignal> object
 Create new timer event.
 Returns L<LibEvent::EvTimer> object
 
-=head2 $base->loop
+=head2 $base->loop($flags)
+
+Wait for events to become active and run their callbacks.
+This loop will run the event base until either there are no more added events, or until something calls break method.
+
+B<Parameters>:
+
+=over
+
+=item C<$flags> - bit mask (optional). Can contains L<EVLOOP_ONCE|LibEvent/EVLOOP_ONCE> and/or L<EVLOOP_NONBLOCK|LibEvent/EVLOOP_NONBLOCK>.
+
+=back
+
+B<Returns>: 0 if successful, -1 if an error occurred and 1 if no events were registered.
 
 =head2 $base->break
 

@@ -47,7 +47,11 @@ LibEvent is a thin wrapper around libevent2 functionality.
         
 =head2 EVLOOP_ONCE
 
+Block event loop until at least one event became active, then exit after process all active events.
+
 =head2 EVLOOP_NONBLOCK
+
+Do not block (see which events are ready now, process of the highest-priority ones, then exit).
 
 =head2 EV_TIMEOUT
 
