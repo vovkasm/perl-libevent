@@ -13,17 +13,66 @@ Create new EventBase object.
 =head2 $base->event_new($fh, $events, $cb)
 
 Create new IO event.
-Returns L<LibEvent::EvIO> object
+
+B<Parameters>:
+
+=over
+
+=item C<$fh> - the file handle to be monitored
+
+=item C<$events> - events to monitor and flags: bitfield of
+L<EV_TIMEOUT|LibEvent/EV_TIMEOUT>,
+L<EV_READ|LibEvent/EV_READ>,
+L<EV_WRITE|LibEvent/EV_WRITE>,
+L<EV_PERSIST|LibEvent/EV_PERSIST> and
+L<EV_ET|LibEvent/EV_ET>
+
+=item C<$cb> - sub reference to be invoked when the event occurs
+
+=back
+
+B<Returns>: L<LibEvent::EvIO> object
 
 =head2 $base->signal_new($signum, $events, $cb)
 
 Create new signal event.
-Returns L<LibEvent::EvSignal> object
+
+B<Parameters>:
+
+=over
+
+=item C<$signum> - the signal to be monitored
+
+=item C<$events> - events to monitor and flags: bitfield of
+L<EV_TIMEOUT|LibEvent/EV_TIMEOUT>,
+L<EV_SIGNAL|LibEvent/EV_SIGNAL> (but this auto-added),
+L<EV_PERSIST|LibEvent/EV_PERSIST> and
+L<EV_ET|LibEvent/EV_ET>
+
+=item C<$cb> - sub reference to be invoked when the event occurs
+
+=back
+
+B<Returns>: L<LibEvent::EvSignal> object
 
 =head2 $base->timer_new($events, $cb)
 
 Create new timer event.
-Returns L<LibEvent::EvTimer> object
+
+B<Parameters>:
+
+=over
+
+=item C<$events> - events to monitor and flags: bitfield of
+L<EV_TIMEOUT|LibEvent/EV_TIMEOUT> (but this auto-added),
+L<EV_PERSIST|LibEvent/EV_PERSIST> and
+L<EV_ET|LibEvent/EV_ET>
+
+=item C<$cb> - sub reference to be invoked when the event occurs
+
+=back
+
+B<Returns>: L<LibEvent::EvTimer> object
 
 =head2 $base->loop($flags)
 
@@ -42,7 +91,21 @@ B<Returns>: 0 if successful, -1 if an error occurred and 1 if no events were reg
 
 =head2 $base->break
 
+Abort the active C<< $base->loop >> immediately.
+
+B<Returns>: 0 if successful, -1 if an error occurred.
+
 =head2 $base->reinit
 
+Reinitialize the event base after a fork. This should be done after fork in child process to use L<LibEvent> in it.
+
+B<Returns>: 0 if successful, -1 if some events could not be re-added.
+
+=head2 $base->now
+
+B<Returns>: Current time (fractional seconds). Look at the cached value in 'base' if possible.
+
 =head2 $base->get_method
+
+B<Returns>: a string identifying the kernel event notification mechanism used by libevent ("kqueue", "epoll", etc.)
 

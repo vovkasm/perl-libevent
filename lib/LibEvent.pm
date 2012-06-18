@@ -49,21 +49,37 @@ LibEvent is a thin wrapper around libevent2 functionality.
 
 Block event loop until at least one event became active, then exit after process all active events.
 
+See L<LibEvent::EventBase/$base-E<gt>loop($flags)>.
+
 =head2 EVLOOP_NONBLOCK
 
 Do not block (see which events are ready now, process of the highest-priority ones, then exit).
 
+See L<LibEvent::EventBase/$base-E<gt>loop($flags)>.
+
 =head2 EV_TIMEOUT
+
+Indicates that a timeout has occurred.
 
 =head2 EV_READ
 
+Wait for a handle to become readable.
+
 =head2 EV_WRITE
+
+Wait for a handle to become writeable.
 
 =head2 EV_SIGNAL
 
+Wait for a signal to be raised.
+
 =head2 EV_PERSIST
 
+Persistent event: won't get removed automatically when activated.
+
 =head2 EV_ET
+
+Select edge-triggered behavior, if supported by the backend.
 
 =head1 FUNCTIONS
 
