@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 use Test::More;
+use Test::Fatal;
 use Carp 'confess';
 use Time::HiRes 'time';
 
@@ -102,6 +103,30 @@ my $base = LibEvent::EventBase->new;
     is $cnt, 3, "3 events was gotten";
 
     $ev->del; # remove before destroy
+}
+
+my $timer1_cb_called;
+sub timer1_cb {
+    my ($ev, $events) = @_;
+    if ($timer1_cb_called) {
+        fail("timer1_cb called more than once");
+    }
+    $timer1_cb_called = 1;
+}
+
+{
+    my $ev = $base->timer_new(0, \&timer1_cb);
+    $ev->add(0.05);
+    is $base->loop, 1, "now exit";
+}
+
+{
+    my $ev = $base->timer_new(0, "not_existing_sub");
+    $ev->add(0.05);
+    like(
+        exception { $base->loop; },
+        qr/Undefined subroutine &main::not_existing_sub/
+    );
 }
 
 done_testing;

@@ -87,4 +87,11 @@ no_leaks_ok(sub {
     $ev->del; # remove before destroy
 });
 
+no_leaks_ok(sub {
+    my $base = LibEvent::EventBase->new;
+    my $ev = $base->timer_new(0, "not_existing_sub");
+    $ev->add(0.05);
+    eval { $base->loop; };
+});
+
 done_testing;

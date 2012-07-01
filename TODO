@@ -1,7 +1,6 @@
-* Correctly check arguments
+* Release to CPAN
 * Remove pointer to perl-level event_base from event structs (use global hash-table instead?)
 * Optimizations... testing...
-* Release to CPAN
 * ? Threads...
 * Add bufferevents
 * Add DNS
