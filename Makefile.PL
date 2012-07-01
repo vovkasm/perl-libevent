@@ -15,4 +15,7 @@ WriteMakefile(
         'Sub::Exporter' => 0,
     },
     LIBS => [@libs],
+    depend => {
+        'LibEvent.xs' => 'base.xsi simple-events.xsi',
+    },
 );
