@@ -1,4 +1,3 @@
-* allow $event->add without arguments
 * rename $io_event->io -> $io_event->fh ?
 * Correctly check arguments
 * Remove pointer to perl-level event_base from event structs (use global hash-table instead?)

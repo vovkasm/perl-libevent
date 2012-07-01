@@ -2,10 +2,10 @@ MODULE = LibEvent PACKAGE = LibEvent::EvTimer
 PROTOTYPES: DISABLED
 
 int
-add(pevent_timer_t* pev, SV* timeout)
+add(pevent_timer_t* pev,... )
   CODE:
-    if (SvOK(timeout)) {
-        NV tm = (NV)SvNV(timeout);
+    if (items > 1 && SvOK(ST(1))) {
+        NV tm = (NV)SvNV(ST(1));
         struct timeval tv;
         tv.tv_sec = (time_t)tm;
         tv.tv_usec = (suseconds_t)((tm - ((NV)tv.tv_sec)) * 1000000);
@@ -43,10 +43,10 @@ MODULE = LibEvent PACKAGE = LibEvent::EvIO
 PROTOTYPES: DISABLED
 
 int
-add(pevent_io_t* pev, SV* timeout)
+add(pevent_io_t* pev,... )
   CODE:
-    if (SvOK(timeout)) {
-        NV tm = (NV)SvNV(timeout);
+    if (items > 1 && SvOK(ST(1))) {
+        NV tm = (NV)SvNV(ST(1));
         struct timeval tv;
         tv.tv_sec = (time_t)tm;
         tv.tv_usec = (suseconds_t)((tm - ((NV)tv.tv_sec)) * 1000000);
@@ -92,10 +92,10 @@ MODULE = LibEvent PACKAGE = LibEvent::EvSignal
 PROTOTYPES: DISABLED
 
 int
-add(pevent_sig_t* pev, SV* timeout)
+add(pevent_sig_t* pev,... )
   CODE:
-    if (SvOK(timeout)) {
-        NV tm = (NV)SvNV(timeout);
+    if (items > 1 && SvOK(ST(1))) {
+        NV tm = (NV)SvNV(ST(1));
         struct timeval tv;
         tv.tv_sec = (time_t)tm;
         tv.tv_usec = (suseconds_t)((tm - ((NV)tv.tv_sec)) * 1000000);

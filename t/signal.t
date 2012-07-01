@@ -29,7 +29,7 @@ my $sw = $base->signal_new(POSIX::SIGHUP, LibEvent::EV_PERSIST, sub {
     });
     
 $tm->add(0.1);
-$sw->add(undef);
+$sw->add;
 
 is $base->loop, 0, "event loop exit";
 
