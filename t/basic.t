@@ -40,7 +40,7 @@ my $base = LibEvent::EventBase->new;
             is $ev->events, EV_TIMEOUT|EV_PERSIST, "events mask is consistent";
             undef $ev if $cnt == 0;
         });
-    $ev->add(0.1);
+    $ev->add(0.05);
 
     is $base->loop, 1;
     is $cnt, 0, "counter now empty";
@@ -53,10 +53,55 @@ my $base = LibEvent::EventBase->new;
             $cnt--;
             is $base->break, 0, "break return success status";
         });
-    $ev->add(0.1);
+    $ev->add(0.05);
 
     is $base->loop, 0;
     is $cnt, 1, "only one event fire";
+}
+
+{
+    # re-add
+    my $cnt = 0;
+    my $ev = $base->timer_new(0, sub {
+            my $e = shift;
+            ++$cnt;
+            if ($cnt == 1) {
+                ok 1, "First timer invocatin, re-add it";
+                $e->add(0.05);
+            }
+        });
+    $ev->add(0.05);
+
+    is $base->loop, 1;
+    is $cnt, 2, "two events gotten";
+}
+
+{
+    # add, remove, add
+    my $cnt = 0;
+    my $ev = $base->timer_new(EV_PERSIST, sub {
+            my $e = shift;
+            ++$cnt;
+            if ($cnt == 1) {
+                ok 1, "First timer invocatin, remove it";
+                $e->del;
+            }
+            if ($cnt == 3) {
+                ok 1, "Third timer invocation, break loop";
+                $base->break;
+            }
+        });
+    $ev->add(0.05);
+
+    is $base->loop, 1;
+    is $cnt, 1, "first event gotten";
+
+    $ev->del; # second remove just for fun
+    $ev->add(0.05);
+    is $base->loop, 0;
+    is $cnt, 3, "3 events was gotten";
+
+    $ev->del; # remove before destroy
 }
 
 done_testing;

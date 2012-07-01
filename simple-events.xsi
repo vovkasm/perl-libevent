@@ -17,6 +17,13 @@ add(pevent_timer_t* pev, SV* timeout)
   OUTPUT:
     RETVAL
 
+void
+del(pevent_timer_t* pev)
+  CODE:
+    if (event_del(&pev->ev) != 0) {
+        croak("EvTimer->del: event_del return error!");
+    }
+
 short
 events(pevent_timer_t* pev)
   CODE:
@@ -50,6 +57,13 @@ add(pevent_io_t* pev, SV* timeout)
     }
   OUTPUT:
     RETVAL
+
+void
+del(pevent_io_t* pev)
+  CODE:
+    if (event_del(&pev->ev) != 0) {
+        croak("EvIO->del: event_del return error!");
+    }
 
 short
 events(pevent_io_t* pev)
@@ -93,6 +107,12 @@ add(pevent_sig_t* pev, SV* timeout)
   OUTPUT:
     RETVAL
 
+void
+del(pevent_sig_t* pev)
+  CODE:
+    if (event_del(&pev->ev) != 0) {
+        croak("EvSignal->del: event_del return error!");
+    }
 
 short
 events(pevent_sig_t* pev)

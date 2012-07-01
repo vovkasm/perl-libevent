@@ -10,6 +10,10 @@ Make event pending in its base.
 
 $timeout - the maximum amount of time to wait for the event, or undef to wait forever
 
+=head2 $ev->del
+
+Remove an event from the set of monitored events. If the event has already executed or has never been added the call will have no effect.
+
 =head2 $ev->events
 
 Returns events that this watcher listen

@@ -62,4 +62,29 @@ no_leaks_ok(sub {
     my $time = $base->now;
 });
 
+no_leaks_ok(sub {
+    my $base = LibEvent::EventBase->new;
+    my $cnt = 0;
+    my $ev = $base->timer_new(EV_PERSIST, sub {
+            my $e = shift;
+            ++$cnt;
+            if ($cnt == 1) {
+                $e->del;
+            }
+            if ($cnt == 3) {
+                $base->break;
+            }
+        });
+    $ev->add(0.05);
+
+    $base->loop;
+
+    $ev->del; # second remove just for fun
+    $ev->add(0.05);
+
+    $base->loop;
+
+    $ev->del; # remove before destroy
+});
+
 done_testing;
