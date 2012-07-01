@@ -8,7 +8,7 @@ LibEvent::EvIO - IO event
 
 Make event pending in its base.
 
-$timeout - the maximum amount of time to wait for the event, or undef to wait forever
+$timeout - the maximum amount of time to wait for the event, or undef to wait forever.
 
 =head2 $ev->del
 
@@ -16,8 +16,12 @@ Remove an event from the set of monitored events. If the event has already execu
 
 =head2 $ev->events
 
-Returns events that this watcher listen
+Returns events that this watcher listen.
 
 =head2 $ev->io
 
-Returns filehandle for this watcher
+Returns filehandle for this watcher.
+
+=head2 $ev->fh
+
+Alias to $ev->io

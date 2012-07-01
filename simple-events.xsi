@@ -74,6 +74,8 @@ events(pevent_io_t* pev)
 
 SV*
 io(pevent_io_t* pev)
+  ALIAS:
+    fh = 1
   CODE:
     RETVAL = newSVsv(pev->io_sv);
   OUTPUT:
