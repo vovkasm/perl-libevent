@@ -10,6 +10,7 @@ WriteMakefile(
     LICENSE => 'perl',
     BUILD_REQUIRES => {
         'Test::More' => 0.88,
+        'Test::Fatal' => 0,
     },
     PREREQ_PM => {
         'Sub::Exporter' => 0,
