@@ -21,3 +21,7 @@ Returns events that this watcher listen
 =head2 $ev->signum
 
 Returns signal number that watched by this event
+
+=head2 $ev->pending
+
+Returns 1 if the event is pending to run, otherwise 0.
