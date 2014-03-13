@@ -13,7 +13,9 @@ my $tm = $base->timer_new(0, sub {
         my ($ev, $events) = @_;
         ok 1, "Ok timer called, now send HUP to self";
         kill POSIX::SIGHUP() => $$;
+        ok !$ev->pending, "timer event is NOT pending";
         $ev->add(0.2);
+        ok $ev->pending, "timer event is pending";
     });
 
 my $cnt = 2;

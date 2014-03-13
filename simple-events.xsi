@@ -31,6 +31,13 @@ events(pevent_timer_t* pev)
   OUTPUT:
     RETVAL
 
+int
+pending(pevent_timer_t* pev)
+  CODE:
+    RETVAL = event_pending(&pev->ev, EV_TIMEOUT, NULL);
+  OUTPUT:
+    RETVAL
+
 void
 DESTROY(pevent_timer_t* pev)
   PPCODE:
@@ -81,6 +88,13 @@ io(pevent_io_t* pev)
   OUTPUT:
     RETVAL
 
+int
+pending(pevent_timer_t* pev)
+  CODE:
+    RETVAL = event_pending(&pev->ev, EV_READ|EV_WRITE, NULL);
+  OUTPUT:
+    RETVAL
+
 void
 DESTROY(pevent_io_t* pev)
   PPCODE:
@@ -127,6 +141,13 @@ int
 signum(pevent_sig_t* pev)
   CODE:
     RETVAL = pev->signum;
+  OUTPUT:
+    RETVAL
+
+int
+pending(pevent_sig_t* pev)
+  CODE:
+    RETVAL = event_pending(&pev->ev, EV_SIGNAL, NULL);
   OUTPUT:
     RETVAL
 
