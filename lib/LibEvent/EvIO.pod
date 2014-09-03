@@ -25,3 +25,7 @@ Returns filehandle for this watcher.
 =head2 $ev->fh
 
 Alias to $ev->io
+
+=head2 $ev->pending
+
+Returns 1 if the event is pending to run, otherwise 0.

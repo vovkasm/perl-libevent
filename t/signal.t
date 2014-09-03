@@ -13,11 +13,14 @@ my $tm = $base->timer_new(0, sub {
         my ($ev, $events) = @_;
         ok 1, "Ok timer called, now send HUP to self";
         kill POSIX::SIGHUP() => $$;
+        ok !$ev->pending, "timer event is NOT pending";
         $ev->add(0.2);
+        ok $ev->pending, "timer event is pending";
     });
 
 my $cnt = 2;
 my $sw = $base->signal_new(POSIX::SIGHUP, LibEvent::EV_PERSIST, sub {
+        my $ev = shift;
         $cnt--;
         if ($cnt) {
             ok 1, "Just got first HUP";
@@ -26,6 +29,7 @@ my $sw = $base->signal_new(POSIX::SIGHUP, LibEvent::EV_PERSIST, sub {
             ok 1, "Just got second HUP";
             $base->break;
         }
+        ok $ev->pending, "still pending";
     });
     
 $tm->add(0.1);
