@@ -1,7 +1,7 @@
 use ExtUtils::MakeMaker;
 
 my $libevent_libs = `pkg-config --libs libevent`;
-my @libs = ($libevent_libs, '-levent');
+my @libs = grep { $_ } ($libevent_libs, '-levent');
 
 WriteMakefile(
     NAME => 'LibEvent',
